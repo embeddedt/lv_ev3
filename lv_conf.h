@@ -20,8 +20,8 @@
  *====================*/
 
 /* Maximal horizontal and vertical resolution to support by the library.*/
-#define LV_HOR_RES_MAX          (480)
-#define LV_VER_RES_MAX          (320)
+#define LV_HOR_RES_MAX          (178)
+#define LV_VER_RES_MAX          (128)
 
 /* Color depth:
  * - 1:  1 byte per pixel
@@ -239,7 +239,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_USE_THEME_DEFAULT    0   /*Built mainly from the built-in styles. Consumes very few RAM*/
 #define LV_USE_THEME_ALIEN      0   /*Dark futuristic theme*/
 #define LV_USE_THEME_NIGHT      0   /*Dark elegant theme*/
-#define LV_USE_THEME_MONO       0   /*Mono color theme for monochrome displays*/
+#define LV_USE_THEME_MONO       1   /*Mono color theme for monochrome displays*/
 #define LV_USE_THEME_MATERIAL   0   /*Flat theme with bold colors and light shadows*/
 #define LV_USE_THEME_ZEN        0   /*Peaceful, mainly light theme */
 #define LV_USE_THEME_NEMO       0   /*Water-like theme based on the movie "Finding Nemo"*/
@@ -257,13 +257,13 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 /* Robot fonts with bpp = 4
  * https://fonts.google.com/specimen/Roboto  */
 #define LV_FONT_ROBOTO_12    0
-#define LV_FONT_ROBOTO_16    1
+#define LV_FONT_ROBOTO_16    0
 #define LV_FONT_ROBOTO_22    0
 #define LV_FONT_ROBOTO_28    0
 
 /*Pixel perfect monospace font
  * http://pelulamu.net/unscii/ */
-#define LV_FONT_UNSCII_8     0
+#define LV_FONT_UNSCII_8     1
 
 /* Optionally declare your custom fonts here.
  * You can use these fonts as default font too
@@ -274,7 +274,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_FONT_CUSTOM_DECLARE
 
 /*Always set a default font from the built-in fonts*/
-#define LV_FONT_DEFAULT        &lv_font_roboto_16
+#define LV_FONT_DEFAULT        &lv_font_unscii_8
 
 /*Declare the type of the user data of fonts (can be e.g. `void *`, `int`, `struct`)*/
 typedef void * lv_font_user_data_t;

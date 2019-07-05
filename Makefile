@@ -1,9 +1,9 @@
 #
 # Makefile
 #
-CC ?= gcc
+CC= arm-linux-gnueabi-gcc
 LVGL_DIR ?= ${shell pwd}
-CFLAGS ?= -Wall -Wshadow -Wundef -Wmaybe-uninitialized -O3 -g0 -I$(LVGL_DIR)/
+CFLAGS ?= -Wall -Wshadow -Wundef -Wmaybe-uninitialized -O3 -ggdb -I$(LVGL_DIR)/
 LDFLAGS ?= -lpthread
 BIN = demo
 
