@@ -6,65 +6,25 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
+#include <stdio.h>
 #include <sys/time.h>
 
 #define DISP_BUF_SIZE (80*LV_HOR_RES_MAX)
 
 
-static void general_event_handler(lv_obj_t * obj, lv_event_t event)
+lv_indev_state_t last_state = LV_INDEV_STATE_REL;
+
+static bool ev3_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
-    (void) obj; /*Unused*/
+	bool res = evdev_read(drv, data);
+	if(data->state == LV_INDEV_STATE_PR && data->key == LV_KEY_BACKSPACE)
+		exit(0);
 
-    switch(event) {
-        case LV_EVENT_PRESSED:
-            printf("Pressed\n");
-            break;
-
-        case LV_EVENT_SHORT_CLICKED:
-            printf("Short clicked\n");
-            break;
-
-        case LV_EVENT_CLICKED:
-            printf("Clicked\n");
-            break;
-
-        case LV_EVENT_LONG_PRESSED:
-            printf("Long press\n");
-            break;
-
-        case LV_EVENT_LONG_PRESSED_REPEAT:
-            printf("Long press repeat\n");
-            break;
-
-        case LV_EVENT_VALUE_CHANGED:
-            printf("Value changed: %s\n", lv_event_get_data() ? (const char *)lv_event_get_data() : "");
-            break;
-
-        case LV_EVENT_RELEASED:
-            printf("Released\n");
-            break;
-
-        case LV_EVENT_DRAG_BEGIN:
-            printf("Drag begin\n");
-            break;
-
-        case LV_EVENT_DRAG_END:
-            printf("Drag end\n");
-            break;
-
-        case LV_EVENT_DRAG_THROW_BEGIN:
-            printf("Drag throw begin\n");
-            break;
-
-        case LV_EVENT_FOCUSED:
-            printf("Focused\n");
-            break;
-        case LV_EVENT_DEFOCUSED:
-            printf("Defocused\n");
-            break;
-        default:
-            break;
-    }
+	if(data->state != last_state) {
+		last_state = data->state;
+		lv_refr_now(lv_disp_get_default());
+	}
+	return res;
 }
 
 int main(void)
@@ -89,40 +49,48 @@ int main(void)
     disp_drv.flush_cb = fbdev_flush;
     lv_disp_drv_register(&disp_drv);
 
-#if 1
+
+    /*Initialize and register an input driver*/
     evdev_init();
     lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_KEYPAD;
-    indev_drv.read_cb = evdev_read;
+    indev_drv.read_cb = ev3_read;
     lv_indev_t *indev = lv_indev_drv_register(&indev_drv);
-#endif
 
-//    lv_theme_set_current(lv_theme_mono_init(0, NULL));
+    /*Set the mono theme*/
+    lv_theme_set_current(lv_theme_mono_init(0, NULL));
 
-    printf("%d by %d\n", lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
-//    lv_obj_align(btn, NULL, LV_ALIGN_CENTER, 0, 0);
-    /*Create a Demo*/
-//    demo_create();
+    /*Create a screen and style */
+    static lv_style_t screen_style;
+    lv_obj_t * screen = lv_obj_create(NULL, NULL);
+    lv_style_copy(&screen_style, &lv_style_scr);
+    screen_style.body.main_color = screen_style.body.grad_color = lv_color_make(255, 255, 255);
+    lv_obj_set_style(screen, &screen_style);
+    lv_scr_load(screen);
 
-#if 0
-    lv_obj_t * btn = lv_btn_create(lv_scr_act(), NULL);
-    lv_obj_set_size(btn, 50, 50);
-    lv_obj_set_pos(btn, 0, 0);
-    lv_obj_set_event_cb(btn, general_event_handler);
-    lv_obj_t * btn2 = lv_btn_create(lv_scr_act(), btn2);
-    lv_obj_set_pos(btn2, 100, 10);
-    lv_obj_set_event_cb(btn2, general_event_handler);
-    lv_group_t *group = lv_group_create();
-    lv_group_add_obj(group, btn);
-    lv_group_add_obj(group, btn2);
-#endif
-    lv_indev_set_group(indev,  lv_test_group_1());
+    /*Create a simple label*/
+    lv_obj_t * label = lv_label_create(screen, NULL);
+    lv_label_set_text(label, "Hello LEGO EV3 World! This is LittlevGL running on ev3dev. Cool, right?");
+    /*Align the label in the center of the screen*/
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SROLL_CIRC);
+    lv_obj_set_width(label, LV_HOR_RES);
+    lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    /*Create a button as well*/
+    lv_obj_t * btn = lv_btn_create(screen, NULL);
+    lv_obj_t * btn_label = lv_label_create(btn, NULL);
+    lv_label_set_text(btn_label, "Button");
+    lv_obj_set_pos(btn, 10, 10);
+    lv_obj_set_size(btn, 80, 20);
+    lv_group_t * g = lv_group_create();
+    lv_group_add_obj(g, btn);
+    lv_indev_set_group(indev, g);
 
     /*Handle LitlevGL tasks (tickless mode)*/
     while(1) {
         lv_task_handler();
-        usleep(5000);
+        usleep(10 * 1000);
     }
 
     return 0;
