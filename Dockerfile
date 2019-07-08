@@ -5,5 +5,6 @@ RUN sudo apt-get update
 RUN sudo apt-get install -y openssh-client git
 RUN sudo groupadd -r -g $uid appuser
 RUN sudo useradd -m -r -u $uid -g appuser appuser
+RUN sudo apt-get install -y libffi-dev pkg-config python python3
 USER appuser
 
